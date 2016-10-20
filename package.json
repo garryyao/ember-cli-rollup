@@ -44,11 +44,18 @@
     "ember-addon"
   ],
   "dependencies": {
+    "broccoli-concat": "^3.0.5",
+    "broccoli-file-creator": "^1.1.1",
     "broccoli-merge-trees": "^1.1.4",
     "broccoli-rollup": "^1.0.3",
     "broccoli-source": "^1.1.0",
     "ember-cli-babel": "^5.1.6",
-    "rollup-plugin-node-resolve": "^2.0.0"
+    "rollup-plugin-commonjs": "^5.0.5",
+    "rollup-plugin-node-builtins": "^2.0.0",
+    "rollup-plugin-node-globals": "^1.0.9",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "typescript": "^2.0.3",
+    "walk-sync": "^0.3.1"
   },
   "ember-addon": {
     "configPath": "tests/dummy/config"

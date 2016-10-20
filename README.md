@@ -2,14 +2,14 @@
 ember-cli-rollup
 ==============================================================================
 
-Build custom rollup bundles with Ember CLI 
+EXPERIMENTAL : Build custom rollup bundles with Ember CLI - Fork from the original addon that auto-discover modules to import
 
 
 Installation
 ------------------------------------------------------------------------------
 
 ```
-npm install --save-dev github:Turbo87/ember-cli-rollup
+npm install --save-dev github:apezel/ember-cli-rollup
 ```
 
 Usage
@@ -25,8 +25,7 @@ to build custom bundles for your app.
     npm install --save-dev d3-selection d3-scale d3-axis
     ```
 
-2.  Create an entry point file for rollup: `rollup/d3.js` in the root project
-    folder (*not* in the `app` folder):
+2.  Import your module in your app
 
     ```js
     export { scaleLinear, scaleTime } from 'd3-scale';
@@ -34,33 +33,29 @@ to build custom bundles for your app.
     export { select } from 'd3-selection';
     ```
 
-3.  In your `ember-cli-build.js` file adjust `var app = new EmberApp(...)` to
-    look roughly like this:
+3.  And that's it ! All modules will be imported into a single self executing function. It prevents code duplication. In your `ember-cli-build.js` file you can configure the rollup general build options or isolate a module and pass specific options to it.
 
     ```js
     var app = new EmberApp(defaults, {
       'ember-cli-rollup': {
-        d3: {
-          nodeResolve: {
-            jsnext: true,
-            main: false,
-          },
+		excludes: ["some module to exclude from bundle"],
+        global: {
+		  sourceMap: true
+		  /* global build settings */
         },
-      },
+		isolate: {
+		  d3: { //d3 will be bundled apart : define('d3', ...) { ... }
+		  	/* d3 specific build settings */
+		  }
+		}
+      }
     });
     ```
 
-    `ember-cli-rollup` will only process modules that are mentioned in this
-    options hash. The `nodeResolve` object will be passed as option to the
-    [node-resolve](https://github.com/rollup/rollup-plugin-node-resolve)
-    rollup plugin.
-
-4.  Use the custom bundle by importing from `rollup/d3` (or using relative
-    paths to the entry point file to take advantage of IDE integration)
-
-    ```js
-    import { scaleLinear } from 'rollup/d3';
-    ```
+    `ember-cli-rollup` will process all modules imported form your app except :
+	- ember cli addons
+	- everything that has a relative or absolute path
+	- modules declared in "excludes"
 
 
 License
