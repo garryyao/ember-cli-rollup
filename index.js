@@ -1,23 +1,30 @@
 /* jshint node: true */
 'use strict';
 
-var DEBUG = true;
-var OUTRO = "Object.keys(exports).forEach(function(mod) { "+
-  "define(mod.replace(/\\${2}/g, '-'), ['exports'], function(exp) { return Object.assign(exp, exports[mod]); }) "+
-  "})";
+var mergeTrees = require('broccoli-merge-trees');
+var unwrapOutro = function() {
+      return "Object.keys(exports).forEach(function(mod) { "+
+        "define(mod.replace(/\\${2}/g, '-'), ['exports'], function(exp) { return Object.assign(exp, exports[mod]); }) "+
+      "});";
+    };
 
 module.exports = {
+
   name: 'ember-cli-rollup',
 
   included: function(app) {
+    var options = this.app.options['ember-cli-rollup'];
+    if (((options.global && options.global.format) || "iife") !== "iife") {
+      throw new Error("unsupported format defined on rollup config > global : only 'iife' is supported");
+    }
     app.import('vendor/rollup-out.js');
   },
 
   preprocessTree: function(type, tree) {
 
-    var envConfig = this.project.config(process.env.EMBER_ENV);
-
     if (type === "js") {
+      var envConfig = this.project.config(process.env.EMBER_ENV);
+      var options = this.app.options['ember-cli-rollup'];
       var walkSync = require('walk-sync');
       var path = require('path');
       var fs = require('fs');
@@ -30,14 +37,12 @@ module.exports = {
         };
         ts.forEachChild(node, visit);
       };
-      var root = this.project.root;
-      var options = this.app.options['ember-cli-rollup'];
-      var rollupFolder = path.join(root, 'app');
-      var input = walkSync.entries(rollupFolder, [ '**/*.js', '**/*.ts' ]);
-      var modules = {};
+
+      var input = walkSync.entries(path.join(this.project.root, 'app'), [ '**/*.js', '**/*.ts' ]);
       var reservedPaths = [envConfig.modulePrefix, "ember", "config"]
         .concat(Object.keys(this.app.project.addonPackages))
         .concat(options.excludes || []);
+      var modules = {};
 
       input.forEach(function(fd) {
 
@@ -80,31 +85,23 @@ module.exports = {
 
   treeForVendor: function(tree) {
     // require() lazily for faster CLI boot-up time
-    
-    var path = require('path');
-    //var WatchedDir = require('broccoli-source').WatchedDir;
     var Rollup = require('broccoli-rollup');
-    var mergeTrees = require('broccoli-merge-trees');
 
     // read list of rollup modules
     var options = this.app.options['ember-cli-rollup'];
 
-    // prepare list of vendor trees
-    var trees = [];
-
     //generate rollup exports
-    var mergeTrees = require('broccoli-merge-trees');
     var writeFile = require('broccoli-file-creator');
     var concat = require('broccoli-concat');
 
     var discovered = this.app.options['ember-cli-rollup-modules-discovered'];
     var exportedFilesTree = [];
     var moduleDefs = Object.assign(
-      {"__global__": {js: "", opts: {entry: "rollup-global-in.js", dest: "rollup-global-out.js"}}},
+      {"__global__": {js: "", opts: {entry: "rollup-global-in.js", dest: "rollup-global-out.js", format: ((options.global && options.global.format) || "iife")}}},
       Object.keys(options.isolate || {}).reduce(function(out, k) {
         out[k] = {
           js: "",
-          opts: Object.assign({moduleId: k, format: "amd", outro: ""}, options.isolate[k], {entry: k+".js", dest: k+"-out.js"})
+          opts: Object.assign({moduleId: k, format: "amd"}, options.isolate[k], {entry: k+".js", dest: k+"-out.js"})
         };
         return out;
       }, {})
@@ -113,41 +110,45 @@ module.exports = {
     Object.keys(discovered).forEach( function(mod) {
       var def = moduleDefs[(moduleDefs[mod] && mod) || "__global__"],
           name = mod.replace(/\-/g, function() { return "$$"; }),
+          eoi = options.trace ? ";\n" : ";",
           owner = "";
       
-      if (def.opts.format === "amd") {
+      if (def.opts.format !== "iife") {
         def.js = Object.keys(discovered[mod]).reduce(function(out, key) {
           if (key === "__namespace__") {
-            out += "export * from '"+mod+"';\n";
+            out += "export * from '"+mod+"'"+eoi;
           } else {
-            out += "export {"+key+"} from '"+mod+"';\n";
+            out += "export {"+key+"} from '"+mod+"'"+eoi;
           }
           return out;
         }, def.js);
       } else { //exported under a global module
         def.js = Object.keys(discovered[mod]).reduce(function(out, key) {
           if (key === "__namespace__") {
-            out += "import * as "+name+" from '"+mod+"';\n";
+            out += "import * as "+name+" from '"+mod+"'"+eoi;
           } else {
-            !owner && (owner = "var "+name+" = {};\n");
+            !owner && (owner = "var "+name+" = {}"+eoi);
             var alias = name+"_"+key;
-            out += "import {"+key+" as "+alias+"} from '"+mod+"';\n";
-            owner += "Object.defineProperty("+name+",'"+key+"', {value: "+alias+", enumerable: true});\n";
+            out += "import {"+key+" as "+alias+"} from '"+mod+"'"+eoi;
+            owner += "Object.defineProperty("+name+",'"+key+"', {value: "+alias+", enumerable: true})"+eoi;
           }
           return out;
-        }, def.js) + owner + "export {"+name+"};\n";
+        }, def.js) + owner + "export {"+name+"}"+eoi;
       }
 
     });
 
-    DEBUG && console.log("exporting rollup-in -> \n"+Object.keys(moduleDefs).map(function(k) { return moduleDefs[k].js; }).join("\n\n"));
+    options.trace && console.log("[ROLLUP] Exporting: \n"+Object.keys(moduleDefs).map(
+      function(k) { return moduleDefs[k].opts.entry + "\n" + moduleDefs[k].js; }
+      ).join("\n\n"));
 
+    /* plugins added by default */
     var builtins = require('rollup-plugin-node-builtins');
     var globals = require('rollup-plugin-node-globals');
     var commonjs = require('rollup-plugin-commonjs');
     var nodeResolve = require('rollup-plugin-node-resolve');
 
-    var rollupInputTree = [],
+    var outputTree = [],
         defaultModuleOptions = {
           format: 'iife',
           sourceMap: false,
@@ -165,16 +166,15 @@ module.exports = {
             globals()
           ],
           context: 'window',
-          moduleName: "__rollup__",
-          outro: OUTRO
+          moduleName: "__rollup__"
         };
 
-    var outputTree = [];
-
     Object.keys(moduleDefs).forEach(function(k) {
-      console.log(k, moduleDefs[k]);
-      var moduleOptions = Object.assign({}, defaultModuleOptions, options.globals || {}, moduleDefs[k].opts),
+
+      var moduleOptions = Object.assign({}, defaultModuleOptions, options.global || {}, moduleDefs[k].opts),
           inputTree = writeFile(moduleDefs[k].opts.entry, moduleDefs[k].js);
+      
+      moduleOptions.outro = (moduleOptions.outro || "") + (moduleOptions.format === "iife" ? unwrapOutro() : "");
 
       outputTree.push(new Rollup(inputTree, { rollup: moduleOptions }));
 

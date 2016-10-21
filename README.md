@@ -38,16 +38,17 @@ to build custom bundles for your app.
     ```js
     var app = new EmberApp(defaults, {
       'ember-cli-rollup': {
-		excludes: ["some module to exclude from bundle"],
+		    excludes: ["some module to exclude from bundle"],
+        trace: false, //writes generated exports to console
         global: {
-		  sourceMap: true
-		  /* global build settings */
+		      sourceMap: true
+		      /* global build settings */
         },
-		isolate: {
-		  d3: { //d3 will be bundled apart : define('d3', ...) { ... }
-		  	/* d3 specific build settings */
-		  }
-		}
+        isolate: {
+          d3: { //d3 will be bundled apart : define('d3', ...) { ... }
+            /* d3 specific build settings */
+          }
+        }
       }
     });
     ```
