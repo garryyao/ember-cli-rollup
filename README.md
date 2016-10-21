@@ -10,7 +10,7 @@ Installation
 ------------------------------------------------------------------------------
 
 ```
-npm install --save-dev github:apezel/ember-cli-rollup
+npm install --save-dev ember-cli-rollup
 ```
 
 What it does
