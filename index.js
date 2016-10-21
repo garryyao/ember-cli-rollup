@@ -4,7 +4,7 @@
 var mergeTrees = require('broccoli-merge-trees');
 var unwrapOutro = function() {
       return "Object.keys(exports).forEach(function(mod) { "+
-        "define(mod.replace(/\\${2}/g, '-'), ['exports'], function(exp) { return Object.assign(exp, exports[mod]); }) "+
+        "define(mod.replace(/\\${2}/g, '-'), ['exports'], function(exp) { return  Object.assign(exp, exports[mod]); }) "+
       "});";
     };
 
@@ -151,7 +151,7 @@ module.exports = {
     var outputTree = [],
         defaultModuleOptions = {
           format: 'iife',
-          sourceMap: false,
+          sourceMap: true,
           plugins: [
             builtins(),
             nodeResolve({
