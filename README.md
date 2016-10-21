@@ -16,7 +16,7 @@ npm install --save-dev ember-cli-rollup
 What it does
 ------------------------------------------------------------------------------
 
-`ember-cli-rollup` will :
+`ember-cli-rollup` :
 - parses sources under app/ and detects imports that are not ember's aliases or yet installed addons
 - supports namespace, default and named imports
 - exports everything into a single self executing module that will re-exports everything into separate modules
