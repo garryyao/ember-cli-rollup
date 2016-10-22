@@ -4,7 +4,7 @@ ember-cli-rollup
 
 Say goobye to shims !
 Automatically embed modules imported from your source code. No need to prefix imports like ember-browserify does.
-*This addon is still experimental and may need more tests and optimizations.*
+*This addon is still experimental and may need more tests and optimizations. Tested with d3, moment, lodash and date-now.*
 
 Installation
 ------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ to build custom bundles for your app.
 History
 ------------------------------------------------------------------------------
 
-This addon is inspired by Turbo87/ember-cli-rollup
+This addon was inspired by Turbo87/ember-cli-rollup
 
 License
 ------------------------------------------------------------------------------

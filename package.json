@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-rollup",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Bundles modules imported in your app",
   "directories": {
     "doc": "doc",
