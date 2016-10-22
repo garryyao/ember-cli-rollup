@@ -59,7 +59,7 @@ to build custom bundles for your app.
 		      /* global build settings */
         },
 
-        isolate: {
+        standalone: {
           "d3-scale": { //d3-scale will be bundled apart : define('d3-scale', ...) { ... }
             /* module specific build settings */
           }
