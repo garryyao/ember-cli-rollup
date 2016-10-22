@@ -51,17 +51,17 @@ to build custom bundles for your app.
     var app = new EmberApp(defaults, {
       'ember-cli-rollup': {
 
-		    excludes: ["some module to exclude from bundle"],
+        excludes: ["some module to exclude from bundle"],
         trace: true, //writes generated exports to console, default false
 
         global: {
           sourceMap: false //default: true
-		      /* global build settings */
+          /* global build settings */
         },
 
         standalone: {
-          "d3-scale": { //d3-scale will be bundled apart : define('d3-scale', ...) { ... }
-            /* module specific build settings */
+           "d3-scale": { //d3-scale will be bundled apart : define('d3-scale', ...) { ... }
+           /* module specific build settings */
           }
         }
       }
