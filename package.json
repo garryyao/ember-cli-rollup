@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-rollup",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Bundles modules imported in your app",
   "directories": {
     "doc": "doc",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/apezel/ember-rollup.git"
+    "url": "https://github.com/apezel/ember-cli-rollup.git"
   },
   "engines": {
     "node": ">= 0.10.0"
