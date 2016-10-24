@@ -6,6 +6,8 @@ Say goobye to shims !
 Automatically embed modules imported from your source code. No need to prefix imports like ember-browserify does.
 *This addon is still experimental and may need more tests and optimizations. Tested with d3, moment, lodash and date-now.*
 
+WARNING : ember-cli-rollup may require the latest version of [loader.js](https://github.com/ember-cli/loader.js), especially if you plan to use named or namespace imports.
+
 Installation
 ------------------------------------------------------------------------------
 
