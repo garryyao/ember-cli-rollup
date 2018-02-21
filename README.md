@@ -2,24 +2,22 @@
 ember-cli-rollup
 ==============================================================================
 
-Say goobye to shims !
-Automatically embed modules imported from your source code. No need to prefix imports like ember-browserify does.
-*This addon is still experimental and may need more tests and optimizations. Tested with d3, moment, lodash and date-now.*
+Import node modules imported from your Ember source code, like [ember-browserify](https://github.com/ef4/ember-browserify) but with support for **named import** and **tree shaking**.
 
-WARNING : ember-cli-rollup may require the latest version of [loader.js](https://github.com/ember-cli/loader.js), especially if you plan to use named or namespace imports.
+Tested with d3, moment, lodash-es.
 
 Installation
 ------------------------------------------------------------------------------
 
 ```
-npm install --save-dev ember-cli-rollup
+npm install --save-dev garryyao/ember-cli-rollup
 ```
 
 What it does
 ------------------------------------------------------------------------------
 
 `ember-cli-rollup` :
-- parses sources under app/ and detects imports that are not ember's aliases or yet installed addons
+- parses sources under app/ and detects imports that are imported from module name start with prefix `npm:`
 - supports namespace, default and named imports
 - exports everything into a single self executing module that will re-exports everything into separate modules
 - prevent code duplication through exported modules
@@ -40,9 +38,9 @@ to build custom bundles for your app.
 2.  Use d3 in your app
 
     ```js
-    import { scaleLinear, scaleTime } from 'd3-scale';
-    import { axisBottom, axisLeft } from 'd3-axis';
-    import { select } from 'd3-selection';
+    import { scaleLinear, scaleTime } from 'npm:d3-scale';
+    import { axisBottom, axisLeft } from 'npm:d3-axis';
+    import { select } from 'npm:d3-selection';
     ```
 
 3.  And that's it ! All required modules parts will be bundled
@@ -59,12 +57,6 @@ to build custom bundles for your app.
         global: {
           sourceMap: false //default: true
           /* global build settings */
-        },
-
-        standalone: {
-           "d3-scale": { //d3-scale will be bundled apart : define('d3-scale', ...) { ... }
-           /* module specific build settings */
-          }
         }
       }
     });
@@ -73,7 +65,7 @@ to build custom bundles for your app.
 History
 ------------------------------------------------------------------------------
 
-This addon was inspired by Turbo87/ember-cli-rollup
+This addon was inspired by apezel/ember-cli-rollup
 
 License
 ------------------------------------------------------------------------------
